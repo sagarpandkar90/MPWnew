@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<style>
+@font-face {
+  font-family: "NotoSansDevanagari";
+  src: url("../fonts/NotoSansDevanagari-Regular.ttf");
+}
+body {
+  font-family: "NotoSansDevanagari";
+  font-size: 11pt;
+}
+h2 {
+  text-align: center;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+th, td {
+  border: 1px solid black;
+  padding: 4px;
+  text-align: center;
+}
+th {
+  background-color: #d9d9d9;
+}
+.section {
+  margin-top: 40px;
+  page-break-before: always;
+}
+.footer {
+  margin-top: 40px;
+  text-align: right;
+  font-size: 10pt;
+}
+</style>
+</head>
+<body>
+
+<h2>गावानुसार अहवाल - {{ village_name }}</h2>
+
+{% for mno, members in grouped_data.items() %}
+<div class="section">
+  <h3>म. क्र. : {{ mno }}</h3>
+  <table>
+    <tr>
+      <th>अ. क्र.</th>
+      <th>सदस्याचे नाव</th>
+      <th>वय</th>
+      <th>लिंग</th>
+      <th>बीपी</th>
+      <th>साखर</th>
+      <th>इतर</th>
+      <th>मोबाईल</th>
+    </tr>
+    {% for row in members %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ row.member_name }}</td>
+      <td>{{ row.age }}</td>
+      <td>{{ row.gender }}</td>
+      <td>{{ 'हो' if row.bp else 'नाही' }}</td>
+      <td>{{ 'हो' if row.sugar else 'नाही' }}</td>
+      <td>{{ row.other or '-' }}</td>
+      <td>{{ row.mobile or '-' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endfor %}
+
+<div class="footer">
+  <p>अहवाल तयार करणारे: {{ created_by }}</p>
+  <p>दिनांक: {{ date }}</p>
+</div>
+
+</body>
+</html>
