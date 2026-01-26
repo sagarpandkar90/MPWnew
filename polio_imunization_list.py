@@ -6,7 +6,7 @@ from datetime import date
 import io, json, base64
 import streamlit.components.v1 as components
 from db_config import get_connection
-
+from pathlib import Path
 # ---------------- Beneficiaries Tab ----------------
 def beneficiaries_tab(user):
     st.header("✅ Beneficiaries / Immunization List")
@@ -167,8 +167,8 @@ def beneficiaries_tab(user):
         else:
             df["dob"] = pd.to_datetime(df["dob"]).dt.strftime("%d-%m-%Y")
             data_json = df.to_dict(orient="records")
-
-            font_path = "../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
+            BASE_DIR = Path(__file__).resolve().parent
+            font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
             with open(font_path, "rb") as f:
                 font_b64 = base64.b64encode(f.read()).decode("utf-8")
 

@@ -1,4 +1,5 @@
 # reports_and_search.py
+from pathlib import Path
 import streamlit as st
 import pandas as pd
 import base64
@@ -268,7 +269,8 @@ def reports_page():
     # -------------------------
     with tab2:
         st.markdown("### 📄 Generate PDF Reports")
-        font_path = "../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
+        BASE_DIR = Path(__file__).resolve().parent
+        font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
         with open(font_path, "rb") as f:
             font_b64 = base64.b64encode(f.read()).decode()
 

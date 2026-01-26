@@ -10,7 +10,8 @@ def entomological_survey_pdf():
     num_pages = st.number_input("किती पेजेस हवी आहेत?", min_value=1, max_value=100, value=1)
 
     # 2. Font Loading
-    font_path = Path("../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
+    BASE_DIR = Path(__file__).resolve().parent
+    font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
     if not font_path.exists():
         st.error("⚠️ Font file missing in 'fonts' folder!")
         return

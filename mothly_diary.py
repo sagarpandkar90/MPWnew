@@ -63,7 +63,8 @@ def monthly_diary():
     # ---------------------------
     # Font load
     # ---------------------------
-    font_path = Path("../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
+    BASE_DIR = Path(__file__).resolve().parent
+    font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
     if not font_path.exists():
         st.error("font 'NotoSerifDevanagari-...' missing!")
         return
