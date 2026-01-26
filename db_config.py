@@ -1,16 +1,13 @@
 import psycopg
 import streamlit as st
-
-
 def get_connection():
     return psycopg.connect(
-        conninfo=f"""
-            host={st.secrets['DB_HOST']}
-            port={st.secrets['DB_PORT']}
-            dbname={st.secrets['DB_NAME']}
-            user={st.secrets['DB_USER']}
-            password={st.secrets['DB_PASSWORD']}
-            sslmode=require
-        """,
+        host=st.secrets['DB_HOST'],
+        port=st.secrets['DB_PORT'],
+        dbname=st.secrets['DB_NAME'],
+        user=st.secrets['DB_USER'],
+        password=st.secrets['DB_PASSWORD'],
+        connect_timeout=10,
         autocommit=False
     )
+
