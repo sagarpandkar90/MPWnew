@@ -1,13 +1,14 @@
 import psycopg
 import streamlit as st
+
+
 def get_connection():
     return psycopg.connect(
-        host=st.secrets['DB_HOST'],
-        port=st.secrets['DB_PORT'],
-        dbname=st.secrets['DB_NAME'],
-        user=st.secrets['DB_USER'],
-        password=st.secrets['DB_PASSWORD'],
+        host=str(st.secrets['DB_HOST']).strip(),  # .strip() removes hidden spaces
+        port=int(st.secrets['DB_PORT']),
+        dbname=str(st.secrets['DB_NAME']),
+        user=str(st.secrets['DB_USER']),
+        password=str(st.secrets['DB_PASSWORD']),
         connect_timeout=10,
-        autocommit=False
+        sslmode='require'  # Most cloud DBs (Supabase, Aiven, Neon) require this
     )
-
