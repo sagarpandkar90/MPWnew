@@ -769,9 +769,10 @@ def combined_all_registers():
     df = pd.DataFrame({c: [""] * 25 for c in all_cols})
     # Data is prepared for JSON injection (No special encoding needed if the data is simple/small)
     data_json = json.dumps(df.to_dict(orient="records"), ensure_ascii=False)
-
+    BASE_DIR = Path(__file__).resolve().parent
+    font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
     # Load font
-    font_path = Path("fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
+    #font_path = Path("fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
     if not font_path.exists():
         st.error(
             "❌ **फॉन्ट गहाळ आहे:** `fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf` ही फाईल तुमच्या Streamlit ॲपच्या 'fonts' फोल्डरमध्ये असणे आवश्यक आहे.")
