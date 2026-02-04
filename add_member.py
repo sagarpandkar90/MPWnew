@@ -1,6 +1,6 @@
+import psycopg
 import streamlit as st
 import pandas as pd
-import psycopg2
 from db_config import get_connection
 
 
@@ -139,7 +139,7 @@ def family_members_tab(user):
                     conn.commit()
                     st.success("✅ सदस्य नोंद हटवली गेली.")
                     st.rerun()
-                except psycopg2.Error as e:
+                except psycopg.Error as e:
                     conn.rollback()
                     st.error(f"❌ Delete Error: {e.pgerror}")
         else:

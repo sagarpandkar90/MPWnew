@@ -1,9 +1,9 @@
-import psycopg2
+import psycopg
 import streamlit as st
 
 
 def get_connection():
-    return psycopg2.connect(
+    return psycopg.connect(
         host=st.secrets['DB_HOST'],
         port=int(st.secrets['DB_PORT']),
         dbname=st.secrets['DB_NAME'],
