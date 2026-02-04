@@ -13,14 +13,8 @@ def rakt_namne_pdf():
     # 2. Font Loading (Required for Marathi/English rendering)
     BASE_DIR = Path(__file__).resolve().parent
     font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
-
-    if not font_path.exists():
-        st.warning("⚠️ Font file missing. Using default font.")
-        font_b64 = ""
-        use_custom_font = False
-    else:
-        font_b64 = base64.b64encode(font_path.read_bytes()).decode()
-        use_custom_font = True
+    font_b64 = base64.b64encode(font_path.read_bytes()).decode()
+    use_custom_font = True
 
     # 3. HTML/JS with PDF logic
     font_config = ""
