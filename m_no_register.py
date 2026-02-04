@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import psycopg
+import psycopg2
 from db_config import get_connection
 
 # ---------------------------
@@ -108,7 +108,7 @@ def m_no_register_tab(user):
                         ))
                         conn.commit()
                         st.success(f"✅ M No {m_no} — {family_head} यांची नोंद जतन झाली.")
-                    except psycopg.Error as e:
+                    except psycopg2.Error as e:
                         conn.rollback()
                         st.error(f"❌ Database Error: {e.pgerror}")
 
