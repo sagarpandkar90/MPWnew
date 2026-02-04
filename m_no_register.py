@@ -1,7 +1,6 @@
 import psycopg
 import streamlit as st
 import pandas as pd
-import psycopg2
 from db_config import get_connection
 
 # ---------------------------
