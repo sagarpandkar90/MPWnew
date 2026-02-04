@@ -11,7 +11,9 @@ def rakt_namne_pdf():
     num_pages = st.number_input("Number of Pages:", min_value=1, max_value=100, value=1)
 
     # 2. Font Loading (Required for Marathi/English rendering)
-    font_path = Path("../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
+    BASE_DIR = Path(__file__).resolve().parent
+    font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
+
     if not font_path.exists():
         st.warning("⚠️ Font file missing. Using default font.")
         font_b64 = ""
