@@ -3,21 +3,39 @@ import streamlit.components.v1 as components
 import base64
 from pathlib import Path
 
+
 def rakt_namne_pdf():
-    st.title("Blood Smear Report - Exact Format")
+    st.title("Blood Smear Report - MPW Format")
 
     # 1. Page Count Input
     num_pages = st.number_input("Number of Pages:", min_value=1, max_value=100, value=1)
 
     # 2. Font Loading (Required for Marathi/English rendering)
-    BASE_DIR = Path(__file__).resolve().parent
-    font_path = BASE_DIR / "fonts" / "NotoSerifDevanagari-VariableFont_wdth,wght.ttf"
+    font_path = Path("../MPWNew/fonts/NotoSerifDevanagari-VariableFont_wdth,wght.ttf")
     if not font_path.exists():
-        st.error("⚠️ Font file missing in 'fonts' folder!")
-        return
-    font_b64 = base64.b64encode(font_path.read_bytes()).decode()
+        st.warning("⚠️ Font file missing. Using default font.")
+        font_b64 = ""
+        use_custom_font = False
+    else:
+        font_b64 = base64.b64encode(font_path.read_bytes()).decode()
+        use_custom_font = True
 
     # 3. HTML/JS with PDF logic
+    font_config = ""
+    if use_custom_font:
+        font_config = f"""
+        pdfMake.vfs["Marathi.ttf"] = "{font_b64}";
+        pdfMake.fonts = {{
+            MarathiFont: {{
+                normal: "Marathi.ttf",
+                bold: "Marathi.ttf"
+            }}
+        }};
+        """
+        default_font = "MarathiFont"
+    else:
+        default_font = "Roboto"
+
     html_template = f"""
     <html>
     <head>
@@ -38,109 +56,185 @@ def rakt_namne_pdf():
         <button class="btn btn-download" onclick="generatePDF('download')">Download PDF</button>
 
         <script>
-        pdfMake.vfs["Marathi.ttf"] = "{font_b64}";
-        pdfMake.fonts = {{
-            MarathiFont: {{
-                normal: "Marathi.ttf",
-                bold: "Marathi.ttf"
-            }}
-        }};
+        {font_config}
 
         function getReportSection() {{
             return [
-                {{ text: "For Reporting of Blood Smears by MPW / HA / Passive Agency", style: 'header' }},
-                {{ text: "Name of Section: ________________________", margin: [0, 2, 0, 5], fontSize: 8 }},
-                {{
-                    columns: [
-                        {{ text: "Headquater: ____________", fontSize: 8 }},
-                        {{ text: "Code No.: ____________", fontSize: 8, alignment: 'right' }}
-                    ],
-                    margin: [0, 0, 0, 5]
-                }},
+                // Page Border - Wrapping all content
                 {{
                     table: {{
-                        headerRows: 4,
-                        widths: [20, 28, 50, 45, 12, 12, 35, 30, 28, 14, 14, 14, 18, 18, '*'],
+                        widths: ['*'],
                         body: [
-                            // Row 1: Main Headers
                             [
-                                {{ text: "House\\nNo.", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Village", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Name of the Head\\nof Family", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Name of the\\nPatient", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Age", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Sex", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Treatment\\nSr.No.\\nBlood\\nSmear", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "No. of\\nTablets\\nGiven\\n(4-Amino\\nQuinoline)", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Date of\\nCollec\\ntion", rowSpan: 4, style: 'tHead' }},
-                                {{ text: "Result (9)\\nIndicate\\nStage", colSpan: 5, style: 'tHead' }},
-                                {{}}, {{}}, {{}}, {{}},
-                                {{ text: "If +\\nMixed\\nProgre\\nssive\\nCase\\nNo.", rowSpan: 4, style: 'tHead' }}
-                            ],
-                            // Row 2: F and M headers (no V mentioned in original)
-                            [
-                                {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}},
-                                {{ text: "F", colSpan: 3, style: 'tHead' }},
-                                {{}}, {{}},
-                                {{ text: "+ve", colSpan: 2, style: 'tHead' }},
-                                {{}},
-                                {{}}
-                            ],
-                            // Row 3: R, G, RG under F, M under +ve
-                            [
-                                {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}},
-                                {{ text: "R", style: 'tHead' }},
-                                {{ text: "G", style: 'tHead' }},
-                                {{ text: "RG", style: 'tHead' }},
-                                {{ text: "M", colSpan: 2, style: 'tHead' }},
-                                {{}},
-                                {{}}
-                            ],
-                            // Row 4: Column numbering
-                            [
-                                {{ text: "2", style: 'numRow' }},
-                                {{ text: "1", style: 'numRow' }},
-                                {{ text: "3", style: 'numRow' }},
-                                {{ text: "4", style: 'numRow' }},
-                                {{ text: "(5 a)", style: 'numRow' }},
-                                {{ text: "(5 b)", style: 'numRow' }},
-                                {{ text: "6", style: 'numRow' }},
-                                {{ text: "7", style: 'numRow' }},
-                                {{ text: "8", style: 'numRow' }},
-                                {{ text: "", style: 'numRow' }},
-                                {{ text: "", style: 'numRow' }},
-                                {{ text: "", style: 'numRow' }},
-                                {{ text: "9", colSpan: 2, style: 'numRow' }},
-                                {{}},
-                                {{ text: "10", style: 'numRow' }}
-                            ],
-                            // Data Rows (18 empty rows)
-                            ...Array(18).fill([
-                                {{ text: " ", margin: [0, 8, 0, 8] }}, "", "", "", "", "", "", "", "", "", "", "", "", "", ""
-                            ])
+                                {{
+                                    stack: [
+                                        // Main Heading
+                                        {{ 
+                                            text: "For Reporting of Blood Smears by MPW / HA / Passive Agency", 
+                                            style: 'mainHeading',
+                                            margin: [5, 5, 5, 5]
+                                        }},
+
+                                        // Second Line - Name of Section, Population, and Name of PHC
+                                        {{
+                                            columns: [
+                                                {{ text: "Name of Section: ____________________________________________________", fontSize: 11, width: 400 }},
+                                                {{ text: "Population: ___________________", fontSize: 11, width: 200 }},
+                                                {{ text: "Name of P.H.C.: ____________________", fontSize: 11, width: 200}}
+                                            ],
+                                            margin: [5, 0, 5, 3]
+                                        }},
+
+                                        // Third Line - Headquarter and Code No
+                                        {{
+                                            columns: [
+                                                {{ text: "Headquarter: _____________________________", fontSize: 11, width: '*' }},
+                                                {{ text: "Code No.: ___________________________", fontSize: 11, width: '*' }}
+                                            ],
+                                            margin: [5, 0, 5, 5]
+                                        }},
+
+                                        // Main Table
+                                        {{
+                                            table: {{
+                                                headerRows: 3,
+                                                widths: [50, 30, 130, 130, 20, 20, 35, 55, 50, 15, 15, 18, 15, 15, 30, 35],
+                                                body: [
+                                                    // First Header Row - Main Columns with Result(9) spanning
+                                                    [
+                                                        {{ text: "Village", rowSpan: 3, style: 'tableHeader', margin: [0, 45, 0, 0] }},
+                                                        {{ text: "House\\nNo.", rowSpan: 3, style: 'tableHeader', margin: [0, 35, 0, 0]  }},
+                                                        {{ text: "Name of the Head\\n of Family", rowSpan: 3, style: 'tableHeader', margin: [0, 35, 0, 0] }},
+                                                        {{ text: "Name of the\\nPatient", rowSpan: 3, style: 'tableHeader', margin: [0, 35, 0, 0] }},
+                                                        {{ text: "Age", rowSpan: 3, style: 'tableHeader', margin: [0, 45, 0, 0]  }},
+                                                        {{ text: "Sex", rowSpan: 3, style: 'tableHeader', margin: [0, 45, 0, 0]  }},
+                                                        {{ text: "Sr.No.\\n of\\nBlood Smear", rowSpan: 3, style: 'tableHeader', margin: [0, 15, 0, 0]   }},
+                                                        {{ text: "Treatment\\nNo. of Tablets\\nGiven\\n(4-Amino\\nQuinoline)", rowSpan: 3, style: 'tableHeader' }},
+                                                        {{ text: "Date of\\nCollection", rowSpan: 3, style: 'tableHeader', margin: [0, 35, 0, 0] }},
+                                                        {{ text: "Result (9)", colSpan: 5, style: 'tableHeader' }},
+                                                        {{}}, {{}}, {{}}, {{}},
+                                                        {{ text: "Mixed\\nIndicate\\nStage", rowSpan: 3, style: 'tableHeader', margin: [0, 15, 0, 0]  }},
+                                                        {{ text: "If +\\nProgressive\\n+ve\\nCase No.", rowSpan: 3, style: 'tableHeader' }}
+                                                    ],
+                                                    // Second Header Row - F, V, M under Result(9)
+                                                    [
+                                                        {{text: "Village"}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}}, {{}},
+                                                        {{ text: "F", colSpan: 3, style: 'subHeader' }},
+                                                        {{}}, {{}},
+                                                        {{ text: "V", rowSpan: 2, style: 'subHeader' }},
+                                                        {{ text: "M", rowSpan: 2, style: 'subHeader' }},
+                                                        {{}},
+                                                        {{}}
+                                                    ],
+                                                    // Third Header Row - R, G, RG under F and Column Numbers
+                                                    [
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{ text: "R", style: 'subColumnHeader' }},
+                                                        {{ text: "G", style: 'subColumnHeader' }},
+                                                        {{ text: "RG", style: 'subColumnHeader' }},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}}
+                                                    ],
+[
+                                                        {{ text: "1", style: 'columnNumber' }},
+                                                        {{ text: "2", style: 'columnNumber' }},
+                                                        {{ text: "3", style: 'columnNumber' }},
+                                                        {{ text: "4", style: 'columnNumber' }},
+                                                        {{ text: "(5a)", style: 'columnNumber' }},
+                                                        {{ text: "(5b)", style: 'columnNumber' }},
+                                                        {{ text: "6", style: 'columnNumber' }},
+                                                        {{ text: "7", style: 'columnNumber' }},
+                                                        {{ text: "8", style: 'columnNumber' }},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{}},
+                                                        {{ text: "10", style: 'columnNumber' }},
+                                                        {{ text: "11", style: 'columnNumber' }}
+                                                    ],                                                    
+                                                    // Data Rows (14 empty rows for data entry)
+                                                    ...Array(14).fill([
+                                                        {{ text: "", margin: [0, 8, 0, 8] }},
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        ""
+                                                    ])
+                                                ]
+                                            }},
+                                            layout: {{
+                                                hLineWidth: function(i, node) {{ return 0.5; }},
+                                                vLineWidth: function(i, node) {{ return 0.5; }},
+                                                hLineColor: function(i, node) {{ return '#000000'; }},
+                                                vLineColor: function(i, node) {{ return '#000000'; }}
+                                            }},
+                                            margin: [5, 0, 5, 8]
+                                        }},
+
+                                        // Footer Section with three columns
+                                        {{
+                                            columns: [
+                                                {{
+                                                    width: '*',
+                                                    stack: [
+                                                        {{ text: "____________________", fontSize: 11, alignment: 'left', margin: [0, 15, 0, 0] }},
+                                                        {{ text: "Signature Microscopist", fontSize: 11, alignment: 'left' }}
+
+                                                    ]
+                                                }},
+                                                {{
+                                                    width: '*',
+                                                    stack: [
+                                                        {{ text: "____________________", fontSize: 11, alignment: 'center', margin: [0, 15, 0, 0] }},
+                                                        {{ text: "Date of Examination", fontSize: 11, alignment: 'center' }}
+
+                                                    ]
+                                                }},
+                                                {{
+                                                    width: '*',
+                                                    stack: [
+                                                        {{ text: "______________________________", fontSize: 11, alignment: 'right', margin: [0, 15, 0, 0] }},
+                                                        {{ text: "Signature of MPW / HA / HS / Others", fontSize: 11, alignment: 'right' }}
+
+                                                    ]
+                                                }}
+                                            ],
+                                            margin: [5, 0, 5, 5]
+                                        }}
+                                    ],
+                                    border: [true, true, true, true]
+                                }}
+                            ]
                         ]
                     }},
-                    margin: [0, 0, 0, 5]
-                }},
-                {{
-                    columns: [
-                        {{
-                            width: '*',
-                            stack: [
-                                {{ text: "Population: ____________", fontSize: 8 }},
-                                {{ text: "Name of P.H.C.: ____________", fontSize: 8, margin: [0, 3, 0, 0] }},
-                                {{ text: "Date of Examination: ____________", fontSize: 8, margin: [0, 3, 0, 0] }}
-                            ]
-                        }},
-                        {{
-                            width: '*',
-                            stack: [
-                                {{ text: "Signature Microscopist", fontSize: 8, margin: [0, 12, 0, 0], alignment: 'center' }},
-                                {{ text: "Signature of MPW / HA / HS / others", fontSize: 8, margin: [0, 12, 0, 0], alignment: 'center' }}
-                            ]
-                        }}
-                    ],
-                    margin: [0, 5, 0, 0]
+                    layout: {{
+                        hLineWidth: function(i, node) {{ return 1; }},
+                        vLineWidth: function(i, node) {{ return 1; }},
+                        hLineColor: function(i, node) {{ return '#000000'; }},
+                        vLineColor: function(i, node) {{ return '#000000'; }}
+                    }}
                 }}
             ];
         }}
@@ -155,19 +249,46 @@ def rakt_namne_pdf():
             const docDefinition = {{
                 pageSize: "A4",
                 pageOrientation: "landscape",
-                pageMargins: [20, 25, 20, 25],
-                defaultStyle: {{ font: "MarathiFont", fontSize: 7 }},
+                pageMargins: [10, 35, 10, 5], // Left, Top (binding margin), Right, Bottom
+                defaultStyle: {{ 
+                    font: "{default_font}", 
+                    fontSize: 7 
+                }},
                 styles: {{
-                    header: {{ fontSize: 10, bold: true, alignment: 'center' }},
-                    tHead: {{ fontSize: 6, bold: true, alignment: 'center', fillColor: '#F2F2F2' }},
-                    numRow: {{ fontSize: 6, alignment: 'center', fillColor: '#EAEAEA' }},
-                    footer: {{ fontSize: 8 }}
+                    mainHeading: {{ 
+                        fontSize: 18, 
+                        bold: true, 
+                        alignment: 'center' 
+                    }},
+                    tableHeader: {{ 
+                        fontSize: 10, 
+                        bold: true, 
+                        alignment: 'center',
+                        fillColor: '#E8E8E8'
+                    }},
+                    subHeader: {{ 
+                        fontSize: 10, 
+                        bold: true, 
+                        alignment: 'center',
+                        fillColor: '#F0F0F0'
+                    }},
+                    subColumnHeader: {{ 
+                        fontSize: 10, 
+                        bold: true, 
+                        alignment: 'center',
+                        fillColor: '#F5F5F5'
+                    }},
+                    columnNumber: {{ 
+                        fontSize: 10, 
+                        alignment: 'center',
+                        fillColor: '#F8F8F8'
+                    }}
                 }},
                 content: content
             }};
 
             if (action === 'download') {{
-                pdfMake.createPdf(docDefinition).download("Blood_Smear_Report.pdf");
+                pdfMake.createPdf(docDefinition).download("Blood_Smear_Report_MPW.pdf");
             }} else {{
                 pdfMake.createPdf(docDefinition).open();
             }}
@@ -177,6 +298,7 @@ def rakt_namne_pdf():
     </html>
     """
     components.html(html_template, height=150)
+
 
 if __name__ == "__main__":
     rakt_namne_pdf()
