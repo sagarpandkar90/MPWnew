@@ -4,13 +4,15 @@ from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 
+# --- GLOBAL CONFIG ---
+FONT_NAME = 'Nirmala UI'  # Highly recommended for Marathi/English balance
 
 def monthly_repo():
     # --- UTILS ---
     def create_letter_header(doc, phc, upkendra, tal, dist, date, subject, g_date="", p_date=""):
-        """Creates the standard PHC letterhead (Top Right) and recipient block with large fonts."""
+        """Creates the standard PHC letterhead with balanced font rendering."""
 
-        # 1. PHC Details - Top Right Corner (Font Size 16)
+        # 1. PHC Details - Top Right Corner
         header_para = doc.add_paragraph()
         header_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         header_text = (
@@ -21,36 +23,40 @@ def monthly_repo():
             f"दिनांक:- {date}"
         )
         run = header_para.add_run(header_text)
-        run.font.size = Pt(16)
+        run.font.name = FONT_NAME
+        run.font.size = Pt(13)
         run.bold = True
 
-        # 2. Recipient Section - Left (Font Size 12)
+        # 2. Recipient Section - Left
         p2 = doc.add_paragraph("\nप्रति\nवरिष्ठ भूवैज्ञानिक\nभूजल सर्वेक्षण आणि विकास यंत्रणा\nउपविभागीय प्रयोगशाळा, इंदापूर")
         for run in p2.runs:
-            run.font.size = Pt(14)
+            run.font.name = FONT_NAME
+            run.font.size = Pt(12)
             run.bold = True
 
-        # 3. Subject (Font Size 14)
+        # 3. Subject
         subj = doc.add_paragraph(f"\nविषय : {subject}")
         subj.alignment = WD_ALIGN_PARAGRAPH.LEFT
         run_subj = subj.runs[0]
-        run_subj.font.size = Pt(15)
+        run_subj.font.name = FONT_NAME
+        run_subj.font.size = Pt(13)
         run_subj.bold = True
 
-        # 4. Body Text (Font Size 12)
+        # 4. Body Text
         body = doc.add_paragraph(
             f"उपरोक्त विषयानुसार प्रा.आ. केंद्र {phc}, उपकेंद्र {upkendra} कक्षेतील नमुने तपासणीसाठी पाठवीत आहोत. तरी कृपया तपासून अहवाल मिळावा ही विनंती.\n"
         )
         for run in body.runs:
-            run.font.size = Pt(14)
+            run.font.name = FONT_NAME
+            run.font.size = Pt(12)
 
-        # 5. Dates in One Line with Large Spacing (Font Size 12)
+        # 5. Dates
         if g_date or p_date:
             date_para = doc.add_paragraph()
-            # Combining collection and submission dates in one line with 15 spaces
-            date_line = f"नमुने घेतल्याचा दिनांक: {g_date}" + (" " * 15) + f"नमुने पाठवल्याचा दिनांक: {p_date}"
+            date_line = f"नमुने घेतल्याचा दिनांक: {g_date}" + (" " * 12) + f"नमुने पाठवल्याचा दिनांक: {p_date}"
             run_date = date_para.add_run(date_line)
-            run_date.font.size = Pt(14)
+            run_date.font.name = FONT_NAME
+            run_date.font.size = Pt(12)
             run_date.bold = True
 
     # --- APP LAYOUT ---
@@ -84,35 +90,31 @@ def monthly_repo():
         for i, row in enumerate(st.session_state.water_rows):
             c1, c2, c3, c4 = st.columns(4)
             st.session_state.water_rows[i]['uid'] = c1.text_input(f"UID {i + 1}", value=row['uid'], key=f"w_uid_{i}")
-            st.session_state.water_rows[i]['gp'] = c2.text_input(f"ग्रामपंचायत {i + 1}", value=row['gp'],
-                                                                 key=f"w_gp_{i}")
-            st.session_state.water_rows[i]['wadi'] = c3.text_input(f"वाडी/वस्ती {i + 1}", value=row['wadi'],
-                                                                   key=f"w_wadi_{i}")
-            st.session_state.water_rows[i]['strot'] = c4.text_input(f"स्त्रोत {i + 1}", value=row['strot'],
-                                                                    key=f"w_strot_{i}")
+            st.session_state.water_rows[i]['gp'] = c2.text_input(f"ग्रामपंचायत {i + 1}", value=row['gp'], key=f"w_gp_{i}")
+            st.session_state.water_rows[i]['wadi'] = c3.text_input(f"वाडी/वस्ती {i + 1}", value=row['wadi'], key=f"w_wadi_{i}")
+            st.session_state.water_rows[i]['strot'] = c4.text_input(f"स्त्रोत {i + 1}", value=row['strot'], key=f"w_strot_{i}")
 
         st.button("Add Row", on_click=add_water_row, key="btn_w")
 
         if st.button("Generate Water Letter"):
             doc = Document()
-            create_letter_header(doc, w_phc, w_up, w_tal, w_dist, w_date, "अणुजैविक/रासायनिक पाणी नमुने तपासणी बाबत...",
-                                 w_g_date, w_p_date)
+            create_letter_header(doc, w_phc, w_up, w_tal, w_dist, w_date, "अणुजैविक/रासायनिक पाणी नमुने तपासणी बाबत...", w_g_date, w_p_date)
             table = doc.add_table(rows=1, cols=5)
             table.style = 'Table Grid'
 
-            # Table Headers (Size 12)
             for j, text in enumerate(["अ.क्र", "UID", "ग्रामपंचायत", "वाडी/वस्ती", "स्त्रोत"]):
                 run = table.rows[0].cells[j].paragraphs[0].add_run(text)
-                run.font.size = Pt(14)
+                run.font.name = FONT_NAME
+                run.font.size = Pt(12)
                 run.bold = True
 
-            # Table Data (Size 12)
             for idx, r in enumerate(st.session_state.water_rows):
                 row_cells = table.add_row().cells
                 row_data = [str(idx + 1), r['uid'], r['gp'], r['wadi'], r['strot']]
                 for j, val in enumerate(row_data):
                     run = row_cells[j].paragraphs[0].add_run(val)
-                    run.font.size = Pt(14)
+                    run.font.name = FONT_NAME
+                    run.font.size = Pt(12)
 
             bio = io.BytesIO()
             doc.save(bio)
@@ -148,21 +150,22 @@ def monthly_repo():
 
         if st.button("Generate TCL Letter"):
             doc = Document()
-            create_letter_header(doc, t_phc, t_up, "इंदापूर", "पुणे", t_date, "TCL नमुने तपासणी बाबत...", t_g_date,
-                                 t_p_date)
+            create_letter_header(doc, t_phc, t_up, "इंदापूर", "पुणे", t_date, "TCL नमुने तपासणी बाबत...", t_g_date, t_p_date)
             table = doc.add_table(rows=1, cols=5)
             table.style = 'Table Grid'
             headers = ["अ.क्रं", "ग्रामपंचायतचे नाव", "कंपनीचे नाव", "बॅच नंबर", "MFG Date"]
             for j, h in enumerate(headers):
                 run = table.rows[0].cells[j].paragraphs[0].add_run(h)
-                run.font.size = Pt(14)
+                run.font.name = FONT_NAME
+                run.font.size = Pt(12)
                 run.bold = True
             for idx, r in enumerate(st.session_state.tcl_rows):
                 row_cells = table.add_row().cells
                 row_data = [str(idx + 1), r['gp'], r['company'], r['batch'], r['mfg']]
                 for j, val in enumerate(row_data):
                     run = row_cells[j].paragraphs[0].add_run(val)
-                    run.font.size = Pt(14)
+                    run.font.name = FONT_NAME
+                    run.font.size = Pt(12)
             bio = io.BytesIO()
             doc.save(bio)
             st.download_button("Download TCL Letter", data=bio.getvalue(), file_name="TCL_Namune.docx")
@@ -198,21 +201,22 @@ def monthly_repo():
 
         if st.button("Generate Salt Letter"):
             doc = Document()
-            create_letter_header(doc, s_phc, s_up, "इंदापूर", "पुणे", s_date, "मीठ नमुने तपासणी बाबत...", s_g_date,
-                                 s_p_date)
+            create_letter_header(doc, s_phc, s_up, "इंदापूर", "पुणे", s_date, "मीठ नमुने तपासणी बाबत...", s_g_date, s_p_date)
             table = doc.add_table(rows=1, cols=6)
             table.style = 'Table Grid'
             headers = ["अ.क्रं", "किराणा दुकान", "गावाचे नाव", "कंपनीचे नाव", "Batch No", "MFG Date"]
             for j, h in enumerate(headers):
                 run = table.rows[0].cells[j].paragraphs[0].add_run(h)
-                run.font.size = Pt(14)
+                run.font.name = FONT_NAME
+                run.font.size = Pt(12)
                 run.bold = True
             for idx, r in enumerate(st.session_state.salt_rows):
                 row_cells = table.add_row().cells
                 row_data = [str(idx + 1), r['shop'], r['village'], r['company'], r['batch'], r['mfg']]
                 for j, val in enumerate(row_data):
                     run = row_cells[j].paragraphs[0].add_run(val)
-                    run.font.size = Pt(14)
+                    run.font.name = FONT_NAME
+                    run.font.size = Pt(12)
             bio = io.BytesIO()
             doc.save(bio)
             st.download_button("Download Salt Letter", data=bio.getvalue(), file_name="Mith_Namune.docx")
