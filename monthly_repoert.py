@@ -62,7 +62,7 @@ def monthly_repo():
     # --- APP LAYOUT ---
     st.set_page_config(page_title="PHC Report Generator", layout="wide")
 
-    tab_water, tab_tcl, tab_salt = st.tabs([
+    tab_water, tab_tcl, tab_salt, tab_final  = st.tabs([
         "💧 पाणी नमुने", "🧪 TCL नमुने", "🧂 मीठ नमुने"
     ])
 
