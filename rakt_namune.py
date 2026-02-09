@@ -161,7 +161,7 @@ def rakt_namne_pdf():
                                                     ],                                                    
                                                     // Data Rows (14 empty rows for data entry)
                                                     ...Array(14).fill([
-                                                        {{ text: "", margin: [0, 9, 0, 9] }},
+                                                        {{ text: "", margin: [0, 8.5, 0, 8.5] }},
                                                         "",
                                                         "",
                                                         "",
