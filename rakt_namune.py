@@ -161,7 +161,7 @@ def rakt_namne_pdf():
                                                     ],                                                    
                                                     // Data Rows (14 empty rows for data entry)
                                                     ...Array(14).fill([
-                                                        {{ text: "", margin: [0, 8.5, 0, 8.5] }},
+                                                        {{ text: "", margin: [0, 8.3, 0, 8.3] }},
                                                         "",
                                                         "",
                                                         "",
@@ -245,7 +245,7 @@ def rakt_namne_pdf():
             const docDefinition = {{
                 pageSize: "A4",
                 pageOrientation: "landscape",
-                pageMargins: [5, 35, 5, 5], // Left, Top (binding margin), Right, Bottom
+                pageMargins: [5, 35, 5, 0], // Left, Top (binding margin), Right, Bottom
                 defaultStyle: {{ 
                     font: "{default_font}", 
                     fontSize: 7 
