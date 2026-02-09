@@ -245,7 +245,7 @@ def rakt_namne_pdf():
             const docDefinition = {{
                 pageSize: "A4",
                 pageOrientation: "landscape",
-                pageMargins: [5, 35, 5, 0], // Left, Top (binding margin), Right, Bottom
+                pageMargins: [5, 34, 5, 0], // Left, Top (binding margin), Right, Bottom
                 defaultStyle: {{ 
                     font: "{default_font}", 
                     fontSize: 7 
