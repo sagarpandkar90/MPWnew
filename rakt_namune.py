@@ -94,7 +94,7 @@ def rakt_namne_pdf():
                                         {{
                                             table: {{
                                                 headerRows: 3,
-                                                widths: [50, 30, 130, 130, 20, 20, 35, 55, 50, 15, 15, 18, 15, 15, 30, 35],
+                                                widths: [50, 30, 135, 135, 20, 20, 35, 55, 50, 15, 15, 18, 15, 15, 30, 35],
                                                 body: [
                                                     // First Header Row - Main Columns with Result(9) spanning
                                                     [
@@ -161,7 +161,7 @@ def rakt_namne_pdf():
                                                     ],                                                    
                                                     // Data Rows (14 empty rows for data entry)
                                                     ...Array(14).fill([
-                                                        {{ text: "", margin: [0, 8, 0, 8] }},
+                                                        {{ text: "", margin: [0, 9, 0, 9] }},
                                                         "",
                                                         "",
                                                         "",
@@ -245,7 +245,7 @@ def rakt_namne_pdf():
             const docDefinition = {{
                 pageSize: "A4",
                 pageOrientation: "landscape",
-                pageMargins: [10, 35, 10, 5], // Left, Top (binding margin), Right, Bottom
+                pageMargins: [5, 35, 5, 5], // Left, Top (binding margin), Right, Bottom
                 defaultStyle: {{ 
                     font: "{default_font}", 
                     fontSize: 7 
