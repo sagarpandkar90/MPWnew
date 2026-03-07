@@ -1,5 +1,5 @@
 libcairo2-dev
 pkg-config
-libfreetype6-dev
+fonts-dejavu
 libffi-dev
 libpq-dev
