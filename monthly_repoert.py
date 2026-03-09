@@ -5,6 +5,8 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 
 # --- GLOBAL CONFIG ---
+from monthly_final_report import mothly_final_report
+
 FONT_NAME = 'Nirmala UI'  # Highly recommended for Marathi/English balance
 
 def monthly_repo():
@@ -67,7 +69,7 @@ def monthly_repo():
     ])
 
     with tab_monthfinal:
-        st.header("अणुजैविक/रासायनिक पाणी नमुने तपासणी")
+        mothly_final_report()
 
     # --- TAB 1: पाणी नमुने ---
     with tab_water:
