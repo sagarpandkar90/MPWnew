@@ -63,15 +63,22 @@ def mothly_final_report():
         num_staff = st.number_input("कर्मचारी संख्या", min_value=1, max_value=20, value=5, key="rows1")
 
         staff_data = []
+        designation_options = ["आरोग्य सेवक", "आरोग्य सेविका", "आरोग्य सेविका NHM"]
+
         for i in range(num_staff):
             st.markdown(f"**कर्मचारी {i + 1}**")
-            cols = st.columns([2, 1, 1, 1, 1])
+            cols = st.columns([2, 2, 1, 1, 1, 1])
+
+            staff_name = cols[0].text_input(f"नाव", value="", key=f"s1_name_{i}")
+            staff_designation = cols[1].selectbox(f"पदनाम", options=designation_options, key=f"s1_desg_{i}")
+
             row_data = {
-                'पदनाम': cols[0].text_input(f"पदनाम (आरोग्य सेविका/सेवक)", value="", key=f"s1_post_{i}"),
-                'पहिला_पंधरावडा': cols[1].text_input(f"मासिक पहिला", value="0", key=f"s1_f1_{i}"),
-                'दुसरा_पंधरावडा': cols[2].text_input(f"मासिक दुसरा", value="0", key=f"s1_f2_{i}"),
-                'प्रगती_पहिला': cols[3].text_input(f"प्रगती पहिला", value="0", key=f"s1_p1_{i}"),
-                'प्रगती_दुसरा': cols[4].text_input(f"प्रगती दुसरा", value="0", key=f"s1_p2_{i}"),
+                'नाव': staff_name,
+                'पदनाम': staff_designation,
+                'पहिला_पंधरावडा': cols[2].text_input(f"पहिला पंधरावडा घे.", value="0", key=f"s1_f1_{i}"),
+                'दुसरा_पंधरावडा': cols[3].text_input(f"दुसरा पंधरावडा घे.", value="0", key=f"s1_f2_{i}"),
+                'प्रगती_पहिला': cols[4].text_input(f"पहिला पंधरावडा प्र.", value="0", key=f"s1_p1_{i}"),
+                'प्रगती_दुसरा': cols[5].text_input(f"दुसरा पंधरावडा प्र.", value="0", key=f"s1_p2_{i}"),
             }
             staff_data.append(row_data)
 
@@ -80,13 +87,13 @@ def mothly_final_report():
         total_asha_count = st.text_input("एकूण आशा कार्यकर्ती संख्या", value="0", key="s1_total_asha")
 
         # Get monthly and progress values for ASHA row
-        cols_asha = st.columns([2, 1, 1, 1, 1])
+        cols_asha = st.columns([2, 2, 1, 1, 1, 1])
         with cols_asha[0]:
             st.text("(मासिक व प्रगती)")
-        asha_f1 = cols_asha[1].text_input("मासिक पहिला", value="0", key="s1_asha_f1")
-        asha_f2 = cols_asha[2].text_input("मासिक दुसरा", value="0", key="s1_asha_f2")
-        asha_p1 = cols_asha[3].text_input("प्रगती पहिला", value="0", key="s1_asha_p1")
-        asha_p2 = cols_asha[4].text_input("प्रगती दुसरा", value="0", key="s1_asha_p2")
+        asha_f1 = cols_asha[2].text_input("पहिला पंधरावडा घे. ", value="0", key="s1_asha_f1")
+        asha_f2 = cols_asha[3].text_input("दुसरा पंधरावडा घे.", value="0", key="s1_asha_f2")
+        asha_p1 = cols_asha[4].text_input("पहिला पंधरावडा प्र.", value="0", key="s1_asha_p1")
+        asha_p2 = cols_asha[5].text_input("दुसरा पंधरावडा प्र.", value="0", key="s1_asha_p2")
 
         # Calculate totals automatically
         total_f1 = sum(int(s['पहिला_पंधरावडा'] or 0) for s in staff_data) + int(asha_f1 or 0)
@@ -102,6 +109,7 @@ def mothly_final_report():
         st.session_state.sheet_data['sheet1'] = {
             'title': 'राष्ट्रीय कीटकजन्य रोग नियंत्रण कार्यक्रम, जिल्हा पुणे',
             'subtitle': 'रक्त नमुना मासिक अहवाल',
+            'month_year': month_year,
             'subcenter_sr': subcenter_sr,
             'subcenter_name': subcenter_name,
             'subcenter_pop': subcenter_pop,
@@ -431,6 +439,12 @@ def mothly_final_report():
                   setTimeout(() => {{ status.style.display = 'none'; }}, 3000);
                 }}
 
+                // Helper function to display value or empty string if 0
+                function displayValue(val) {{
+                  if (val === '0' || val === 0 || val === '') return '';
+                  return val;
+                }}
+
                 function createPDFDefinition() {{
                   const content = [];
 
@@ -439,44 +453,49 @@ def mothly_final_report():
                     const s1 = allData.sheet1;
                     const tableBody1 = [];
 
-                    // Title row with top margin
+                    // Title row with increased top margin
                     content.push({{
                       text: s1.title || 'राष्ट्रीय कीटकजन्य रोग नियंत्रण कार्यक्रम, जिल्हा पुणे',
                       alignment: 'center',
                       bold: true,
-                      fontSize: 13,
-                      margin: [0, 30, 0, 5]
+                      fontSize: 15,
+                      margin: [0, 50, 0, 5]
                     }});
 
                     // Subcenter and PHC info row
                     content.push({{
                       columns: [
-                        {{ text: 'उपकेंद्र: ' + (s1.subcenter_name || ''), fontSize: 11, width: '*' , alignment: 'center'}},
-                        {{ text: 'प्रा. आ. केंद्र ' + metadata.phcName + ' तालुका ' + metadata.taluka + ' जिल्हा ' + metadata.district, fontSize: 11, width: '*', alignment: 'center' }}
+                        {{ text: 'प्रा. आ. केंद्र ' + metadata.phcName + ' तालुका ' + metadata.taluka + ' जिल्हा ' + metadata.district, fontSize: 14, width: '*', alignment: 'center', fontSize: 14 }}
                       ],
                       margin: [0, 0, 0, 5]
                     }});
 
-                    // Subtitle
+                    // Subtitle with month/year
                     content.push({{
-                      text: s1.subtitle || 'रक्त नमुना मासिक अहवाल',
+                      text: (s1.subtitle || 'रक्त नमुना मासिक अहवाल') + ' ' + (s1.month_year || ''),
                       alignment: 'center',
                       bold: true,
-                      fontSize: 12,
-                      margin: [0, 0, 0, 10]
+                      fontSize: 13,
+                      margin: [0, 10, 0, 5]
+                    }});
+                    content.push({{
+                      text: ('उपकेंद्र: ') + ' ' + (s1.subcenter_name || ''),
+                      bold: true,
+                      fontSize: 13,
+                      margin: [10, 5, 0, 5]
                     }});
 
                     // Table headers
                     tableBody1.push([
-                      {{ text: 'अ. क्र.', bold: true, fontSize: 9, rowSpan: 2, alignment: 'center' }},
-                      {{ text: 'उपकेंद्राचे नाव', bold: true, fontSize: 9, rowSpan: 2, alignment: 'center' }},
-                      {{ text: 'लोकसंख्या', bold: true, fontSize: 9, rowSpan: 2, alignment: 'center' }},
-                      {{ text: 'कर्मचाऱ्यांचे पदनाम निहाय वर्गवारी', bold: true, fontSize: 9, rowSpan: 2, alignment: 'center' }},
-                      {{ text: 'रक्त नमुना वार्षिक उद्दिष्ट', bold: true, fontSize: 9, rowSpan: 2, alignment: 'center' }},
-                      {{ text: 'रक्त नमुना मासिक उद्दिष्ट', bold: true, fontSize: 9, colSpan: 3, alignment: 'center' }},
+                      {{ text: 'अ. क्र.', bold: true, fontSize: 11, rowSpan: 2, alignment: 'center' }},
+                      {{ text: 'उपकेंद्राचे नाव', bold: true, fontSize: 11, rowSpan: 2, alignment: 'center' }},
+                      {{ text: 'लोकसंख्या', bold: true, fontSize: 11, rowSpan: 2, alignment: 'center' }},
+                      {{ text: 'कर्मचाऱ्यांचे नाव वर्गवारी', bold: true, fontSize: 11, rowSpan: 2, alignment: 'center' }},
+                      {{ text: 'रक्त नमुना वार्षिक उद्दिष्ट', bold: true, fontSize: 11, rowSpan: 2, alignment: 'center' }},
+                      {{ text: 'मासिक घेतलेले रक्त नमुने', bold: true, fontSize: 11, colSpan: 3, alignment: 'center' }},
                       {{}},
                       {{}},
-                      {{ text: 'प्रगतीपथावर घेतलेले रक्त नमुने जानेवारी २०२६ पासून', bold: true, fontSize: 9, colSpan: 3, alignment: 'center' }},
+                      {{ text: 'प्रगतीपथावर घेतलेले रक्त नमुने जानेवारी २०२६ पासून', bold: true, fontSize: 11, colSpan: 3, alignment: 'center' }},
                       {{}},
                       {{}}
                     ]);
@@ -488,72 +507,82 @@ def mothly_final_report():
                       {{}},
                       {{}},
                       {{}},
-                      {{ text: 'पहिला पंधरावडा', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: 'दुसरा पंधरावडा', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: 'एकूण', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: 'पहिला पंधरावडा', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: 'दुसरा पंधरावडा', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: 'एकूण', bold: true, fontSize: 9, alignment: 'center' }}
+                      {{ text: 'पहिला पंधरावडा', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: 'दुसरा  पंधरावडा', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: 'एकूण', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: 'पहिला पंधरावडा', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: 'दुसरा  पंधरावडा ', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: 'एकूण', bold: true, fontSize: 11, alignment: 'center' }}
                     ]);
 
-                    // Calculate total rows for rowSpan (staff + ASHA + total samples)
+                    // Calculate total rows for rowSpan
                     const totalRowsForSubcenterInfo = (s1.staff_data ? s1.staff_data.length : 0) + 2;
-
 
                     // Data rows - staff members
                     if (s1.staff_data && s1.staff_data.length > 0) {{
                       s1.staff_data.forEach((staff, idx) => {{
                         // Calculate totals
-                        const monthlyTotal = (parseInt(staff.पहिला_पंधरावडा || 0) + parseInt(staff.दुसरा_पंधरावडा || 0)).toString();
-                        const progressTotal = (parseInt(staff.प्रगती_पहिला || 0) + parseInt(staff.प्रगती_दुसरा || 0)).toString();
+                        const m1 = parseInt(staff.पहिला_पंधरावडा || 0);
+                        const m2 = parseInt(staff.दुसरा_पंधरावडा || 0);
+                        const p1 = parseInt(staff.प्रगती_पहिला || 0);
+                        const p2 = parseInt(staff.प्रगती_दुसरा || 0);
+                        const monthlyTotal = m1 + m2;
+                        const progressTotal = p1 + p2;
+
+                        // Create name with designation in bracket
+                        const nameWithDesignation = (staff.नाव || '') + (staff.पदनाम ? ' (' + staff.पदनाम + ')' : '');
 
                         tableBody1.push([
-                          {{ text: idx === 0 ? (s1.subcenter_sr || '1') : '', fontSize: 9, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
-                          {{ text: idx === 0 ? (s1.subcenter_name || '') : '', fontSize: 9, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
-                          {{ text: idx === 0 ? (s1.subcenter_pop || '') : '', fontSize: 9, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
-                          {{ text: staff.पदनाम || '', fontSize: 9, alignment: 'center' }},
-                          {{ text: idx === 0 ? (s1.annual_target || '') : '', fontSize: 9, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
-                          {{ text: staff.पहिला_पंधरावडा || '0', fontSize: 9, alignment: 'center' }},
-                          {{ text: staff.दुसरा_पंधरावडा || '0', fontSize: 9, alignment: 'center' }},
-                          {{ text: monthlyTotal !== '0' ? monthlyTotal : '0', fontSize: 9, alignment: 'center' }},
-                          {{ text: staff.प्रगती_पहिला || '0', fontSize: 9, alignment: 'center' }},
-                          {{ text: staff.प्रगती_दुसरा || '0', fontSize: 9, alignment: 'center' }},
-                          {{ text: progressTotal !== '0' ? progressTotal : '0', fontSize: 9, alignment: 'center' }}
+                          {{ text: idx === 0 ? (s1.subcenter_sr || '1') : '', fontSize: 11, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
+                          {{ text: idx === 0 ? (s1.subcenter_name || '') : '', fontSize: 11, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
+                          {{ text: idx === 0 ? (s1.subcenter_pop || '') : '', fontSize: 11, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
+                          {{ text: nameWithDesignation, fontSize: 11, alignment: 'center' }},
+                          {{ text: idx === 0 ? (s1.annual_target || '') : '', fontSize: 11, alignment: 'center', rowSpan: idx === 0 ? totalRowsForSubcenterInfo : 1 }},
+                          {{ text: displayValue(m1), fontSize: 11, alignment: 'center' }},
+                          {{ text: displayValue(m2), fontSize: 11, alignment: 'center' }},
+                          {{ text: displayValue(monthlyTotal), fontSize: 11, alignment: 'center' }},
+                          {{ text: displayValue(p1), fontSize: 11, alignment: 'center' }},
+                          {{ text: displayValue(p2), fontSize: 11, alignment: 'center' }},
+                          {{ text: displayValue(progressTotal), fontSize: 11, alignment: 'center' }}
                         ]);
                       }});
                     }}
 
-                    // Total ASHA workers row - with data in other columns
-                    const ashaMonthlyTotal = (parseInt(s1.asha_data?.f1 || 0) + parseInt(s1.asha_data?.f2 || 0)).toString();
-                    const ashaProgressTotal = (parseInt(s1.asha_data?.p1 || 0) + parseInt(s1.asha_data?.p2 || 0)).toString();
+                    // Total ASHA workers row
+                    const af1 = parseInt(s1.asha_data?.f1 || 0);
+                    const af2 = parseInt(s1.asha_data?.f2 || 0);
+                    const ap1 = parseInt(s1.asha_data?.p1 || 0);
+                    const ap2 = parseInt(s1.asha_data?.p2 || 0);
+                    const ashaMonthlyTotal = af1 + af2;
+                    const ashaProgressTotal = ap1 + ap2;
 
                     tableBody1.push([
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: 'एकूण आशा कार्यकर्ती\\nसंख्या ' + (s1.total_asha_count || ''), bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: s1.asha_data?.f1 || '0', fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.asha_data?.f2 || '0', fontSize: 9, alignment: 'center' }},
-                      {{ text: ashaMonthlyTotal !== '0' ? ashaMonthlyTotal : '0', fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.asha_data?.p1 || '0', fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.asha_data?.p2 || '0', fontSize: 9, alignment: 'center' }},
-                      {{ text: ashaProgressTotal !== '0' ? ashaProgressTotal : '0', fontSize: 9, alignment: 'center' }}
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: 'एकूण आशा कार्यकर्ती\\nसंख्या ' + (s1.total_asha_count || ''), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: displayValue(af1), fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(af2), fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(ashaMonthlyTotal), fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(ap1), fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(ap2), fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(ashaProgressTotal), fontSize: 11, alignment: 'center' }}
                     ]);
 
-                    // Total samples row - with calculated sums
+                    // Total samples row
                     tableBody1.push([
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: 'एकूण रक्तनमुने', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: '', alignment: 'center' }}, // Empty cell for rowSpan
-                      {{ text: s1.totals ? s1.totals.f1 : '0', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.totals ? s1.totals.f2 : '0', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.totals ? s1.totals.monthly : '0', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.totals ? s1.totals.p1 : '0', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.totals ? s1.totals.p2 : '0', bold: true, fontSize: 9, alignment: 'center' }},
-                      {{ text: s1.totals ? s1.totals.progress : '0', bold: true, fontSize: 9, alignment: 'center' }}
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: 'एकूण रक्तनमुने', bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: '', alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.f1), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.f2), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.monthly), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.p1), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.p2), bold: true, fontSize: 11, alignment: 'center' }},
+                      {{ text: displayValue(s1.totals?.progress), bold: true, fontSize: 11, alignment: 'center' }}
                     ]);
 
                     content.push({{
@@ -603,10 +632,9 @@ def mothly_final_report():
 
                     if (s2.data) {{
                       s2.data.forEach(row => {{
-                        // Check if all values in the row are empty or '0'. If so, skip this row.
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody2.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody2.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -655,7 +683,7 @@ def mothly_final_report():
                       s3.data.forEach(row => {{
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody3.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody3.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -682,7 +710,6 @@ def mothly_final_report():
                       {{}},{{}},{{}},{{}},{{}},{{}},{{}},{{}}
                     ]);
 
-
                     tableBody4.push([
                       {{ text: 'अ.क्र.', bold: true, fontSize: 9, alignment: 'center' }},
                       {{ text: 'गाव', bold: true, fontSize: 9, alignment: 'center' }},
@@ -699,7 +726,7 @@ def mothly_final_report():
                       s4.data.forEach(row => {{
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody4.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody4.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -746,8 +773,7 @@ def mothly_final_report():
                       s5.data.forEach(row => {{
                           const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                           if (hasMeaningfulData) {{
-                            // Convert values to array of objects with text and alignment
-                            const rowContent = Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }}));
+                            const rowContent = Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }}));
                             tableBody5.push(rowContent);
                           }}
                       }});
@@ -788,7 +814,7 @@ def mothly_final_report():
                       s6.data.forEach(row => {{
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody6.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody6.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -831,7 +857,7 @@ def mothly_final_report():
                       s7.data.forEach(row => {{
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody7.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody7.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -877,7 +903,7 @@ def mothly_final_report():
                       s8.data.forEach(row => {{
                         const hasMeaningfulData = Object.values(row).some(val => val !== '' && val !== '0');
                         if (hasMeaningfulData) {{
-                          tableBody8.push(Object.values(row).map(val => ({{ text: val || '', fontSize: 9, alignment: 'center' }})));
+                          tableBody8.push(Object.values(row).map(val => ({{ text: displayValue(val), fontSize: 9, alignment: 'center' }})));
                         }}
                       }});
                     }}
@@ -895,7 +921,7 @@ def mothly_final_report():
                     content: content,
                     defaultStyle: {{
                       font: 'MarathiFont',
-                      fontSize: 9 // Increased default font size
+                      fontSize: 9
                     }}
                   }};
                 }}
